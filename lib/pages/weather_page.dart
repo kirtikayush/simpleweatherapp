@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:geocoding/geocoding.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:geolocator/geolocator.dart' as geolocator;
 import 'package:lottie/lottie.dart';
 import 'package:weather_app/services/weather_service.dart';
@@ -93,52 +92,62 @@ class _WeatherPageState extends State<WeatherPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.blueGrey,
-      body: Container(
-        height: MediaQuery.of(context).size.height,
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              SizedBox(height: 140),
-              Icon(Icons.pin_drop, color: Colors.white, size: 40),
+      body: RefreshIndicator(
+        onRefresh: () async {
+          await _fetchWeather();
+        },
+        child: SingleChildScrollView(
+          physics: AlwaysScrollableScrollPhysics(),
+          child: Container(
+            height: MediaQuery.of(context).size.height,
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  SizedBox(height: 140),
+                  Icon(Icons.pin_drop, color: Colors.white, size: 40),
 
-              ///cityname
-              Text(
-                _weather?.cityName ?? 'Loading name',
-                style: TextStyle(
-                  fontFamily: 'test1',
-                  fontSize: 35,
-                  color: Colors.white,
-                ),
+                  ///cityname
+                  Text(
+                    _weather?.cityName ?? 'Loading name',
+                    style: TextStyle(
+                      fontFamily: 'test1',
+                      fontSize: 35,
+                      color: Colors.white,
+                    ),
+                  ),
+                  Spacer(),
+
+                  //animation
+                  Lottie.asset(getWeatherAnimation(_weather?.mainCondition)),
+
+                  Text(
+                    _weather != null
+                        ? _weather!.mainCondition
+                        : "Loading weather",
+                    style: TextStyle(
+                      fontFamily: 'test1',
+                      fontSize: 20,
+                      color: Colors.white,
+                    ),
+                  ),
+                  Spacer(),
+
+                  ///temperature
+                  Text(
+                    _weather != null
+                        ? '${_weather!.temperature.round()}°C'
+                        : 'Loading temperature',
+                    style: TextStyle(
+                      fontFamily: 'test1',
+                      fontSize: 40,
+                      color: Colors.white,
+                    ),
+                  ),
+                  SizedBox(height: 80),
+                ],
               ),
-              Spacer(),
-
-              //animation
-              Lottie.asset(getWeatherAnimation(_weather?.mainCondition)),
-
-              Text(
-                _weather != null ? _weather!.mainCondition : "Loading weather",
-                style: TextStyle(
-                  fontFamily: 'test1',
-                  fontSize: 20,
-                  color: Colors.white,
-                ),
-              ),
-              Spacer(),
-
-              ///temperature
-              Text(
-                _weather != null
-                    ? '${_weather!.temperature.round()}°C'
-                    : 'Loading temperature',
-                style: TextStyle(
-                  fontFamily: 'test1',
-                  fontSize: 40,
-                  color: Colors.white,
-                ),
-              ),
-              SizedBox(height: 80),
-            ],
+            ),
           ),
         ),
       ),
